@@ -75,6 +75,67 @@ Joining a [community meeting](https://www.keycloak.org/community) is a great way
 * [Keycloak Node.js Connect](https://github.com/keycloak/keycloak-nodejs-connect) - Node.js adapter for Keycloak
 
 
+### Guide build and use new version of Keycloak
+Build toàn bộ source code
+"""
+mvn clean install -DskipTests -Pdistribution
+-Pdistribution → Maven sẽ build ra gói Keycloak server phân phối (ZIP/TAR).
+"""
+
+Sau khi build thành công, bạn sẽ thấy file tại:
+"""
+quarkus/dist/target/keycloak-<version>.zip hoặc tại quarkus/dist/target/keycloak-<version>.tar.gz
+"""
+<img width="1550" height="680" alt="image" src="https://github.com/user-attachments/assets/855c0914-7b8c-4740-9710-06250f7b7ec6" />
+<img width="3839" height="384" alt="image" src="https://github.com/user-attachments/assets/1a4b9813-0535-45b9-ae6b-612db31259f6" />
+<img width="3839" height="1814" alt="image" src="https://github.com/user-attachments/assets/3eb35895-9f41-4109-8c11-7f673177d91d" />
+<img width="1341" height="1284" alt="image" src="https://github.com/user-attachments/assets/109a52ff-436a-4d69-b7da-bedd69aa65b7" />
+
+### Chạy keycloak từ source
+"""
+Giải nén file keycloak-<version>.zip và chạy:
+bin/kc.sh start-dev
+"""
+
+### Cách tích hợp code mới của bạn vào open source của keycloak
+* (A) Nếu chỉ custom theme, messages, templates
+👉 Không cần build lại toàn bộ source.
+Chỉ cần tạo thư mục themes/<mytheme> rồi copy vào Keycloak distribution (sau khi giải nén) tại:
+"""
+$KEYCLOAK_HOME/themes/mytheme => Keycloak tự nhận theme mới.
+"""
+
+* (B) Nếu custom code trong core (ví dụ sửa LoginFormsProvider)
+👉 Lúc này bạn phải build lại toàn bộ như trên.
+Sau đó dùng bản Keycloak vừa build để chạy.
+
+Lưu ý: việc sửa code trực tiếp trong core sẽ làm khó nâng cấp về sau. Best practice là viết extension SPI thay vì sửa core.
+
+### Dev nhanh (không build cả project)
+Trong quá trình dev, bạn có thể chỉ build module quarkus distribution:
+
+"""
+cd quarkus/dist
+mvn clean install -DskipTests
+"""
+
+Hoặc build và chạy trực tiếp:
+
+"""
+cd quarkus
+mvn clean install -DskipTests -Pquarkus-server
+mvn quarkus:dev
+"""
+
+✅ Tóm gọn:
+
+Nếu chỉ sửa messages, theme, template → copy vào $KEYCLOAK_HOME/themes (không cần build lại).
+
+Nếu sửa source code (core, provider) → build lại toàn bộ bằng mvn clean install -Pdistribution.
+
+Nếu muốn maintain lâu dài → viết SPI extension thay vì sửa core.
+
+
 ## License
 
 * [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
